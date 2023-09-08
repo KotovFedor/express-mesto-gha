@@ -12,11 +12,14 @@ mongoose.connect(DB_URL, {
   useUnifiedTopology: true,
 });
 
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Cтраница не найдена.' });
+});
+
 app.use((req, res, next) => {
   req.user = {
     _id: '64fb2a12178dbdd9890f8e5c', // _id созданного пользователя
   };
-
   next();
 });
 
