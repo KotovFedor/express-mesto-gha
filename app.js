@@ -16,16 +16,11 @@ app.use((req, res, next) => {
   req.user = {
     _id: '64fb2a12178dbdd9890f8e5c', // _id созданного пользователя
   };
-
   next();
 });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(appRouter);
-
-app.use((req, res) => {
-  res.status(404).send({ message: 'Страница не найдена.' });
-});
 
 app.listen(PORT);
