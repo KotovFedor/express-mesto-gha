@@ -35,12 +35,12 @@ module.exports.deleteCard = (req, res) => {
       res.status(okStatus).send({ message: 'Карточка удалена' });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(notFoundStatus).send({ message: 'Карточка с указанным _id не найдена.' });
+      } else if (err.name === 'CastError') {
+        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
       } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибкаs' });
+        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -58,12 +58,12 @@ module.exports.likeCard = (req, res) => {
       res.status(okStatus).send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(notFoundStatus).send({ message: 'Карточка с указанным _id не найдена.' });
+      } else if (err.name === 'CastError') {
+        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
       } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибкаs' });
+        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -81,12 +81,12 @@ module.exports.dislikeCard = (req, res) => {
       res.status(okStatus).send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(notFoundStatus).send({ message: 'Карточка с указанным _id не найдена.' });
+      } else if (err.name === 'CastError') {
+        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
       } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибкаs' });
+        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
