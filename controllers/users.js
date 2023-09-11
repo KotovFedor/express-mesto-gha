@@ -16,6 +16,7 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
+    .orFail()
     .then((user) => {
       res.status(okStatus).send(user);
     })
@@ -49,7 +50,7 @@ module.exports.updateUserData = (req, res) => {
     req.user._id,
     { name, about },
     { new: 'true', runValidators: true },
-  )
+  ).orFail()
     .then((user) => res.status(okStatus).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -67,7 +68,7 @@ module.exports.updateUserAvatar = (req, res) => {
     req.user._id,
     { avatar: req.body.avatar },
     { new: 'true', runValidators: true },
-  )
+  ).orFail()
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
