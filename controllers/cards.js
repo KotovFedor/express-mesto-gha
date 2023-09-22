@@ -1,51 +1,55 @@
-const Card = require('../models/card');
-const {
-  okStatus,
-  createdStatus,
-  badRequestStatus,
-  notFoundStatus,
-  internalServerErrorStatus,
-} = require('../utils/constants');
+const { HTTP_STATUS_OK, HTTP_STATUS_CREATED } = require('http2').constants;
 
-module.exports.createCard = (req, res) => {
+const Card = require('../models/card');
+
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
+
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => {
-      res.status(createdStatus).send(card);
-    })
+    .then((data) => res.status(HTTP_STATUS_CREATED).send(data))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(badRequestStatus).send({ message: err.message });
+        next(new BadRequestError(err.message));
       } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.send(cards))
-    .catch(() => res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' }));
+    .then((cards) => res.status(HTTP_STATUS_OK).send(cards))
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId).orFail()
-    .then(() => {
-      res.status(okStatus).send({ message: 'Карточка удалена' });
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(notFoundStatus).send({ message: 'Карточка с указанным _id не найдена.' });
-      } else if (err.name === 'CastError') {
-        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
-      } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+        throw new ForbiddenError('Карточка принадлежит другому пользователю');
       }
+      Card.deleteOne(card)
+        .orFail()
+        .then(() => {
+          res.status(HTTP_STATUS_OK).send({ message: 'Карточка удалена' });
+        })
+        .catch((err) => {
+          if (err.name === 'DocumentNotFoundError') {
+            next(new NotFoundError('Карточка с указанным _id не найдена.'));
+          } else if (err.name === 'CastError') {
+            next(new BadRequestError('Некорректный _id карточки'));
+          } else {
+            next(err);
+          }
+        });
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     {
@@ -55,20 +59,20 @@ module.exports.likeCard = (req, res) => {
   ).orFail()
     .populate(['owner', 'likes'])
     .then((card) => {
-      res.status(okStatus).send(card);
+      res.status(HTTP_STATUS_OK).send(card);
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        res.status(notFoundStatus).send({ message: 'Карточка с указанным _id не найдена.' });
+        next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } else if (err.name === 'CastError') {
-        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
+        next(new BadRequestError('Некорректный _id карточки'));
       } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     {
@@ -78,15 +82,15 @@ module.exports.dislikeCard = (req, res) => {
   ).orFail()
     .populate(['owner', 'likes'])
     .then((card) => {
-      res.status(okStatus).send(card);
+      res.status(HTTP_STATUS_OK).send(card);
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        res.status(notFoundStatus).send({ message: 'Карточка с указанным _id не найдена.' });
+        next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } else if (err.name === 'CastError') {
-        res.status(badRequestStatus).send({ message: 'Некорректный _id карточки' });
+        next(new BadRequestError('Некорректный _id карточки'));
       } else {
-        res.status(internalServerErrorStatus).send({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 };
