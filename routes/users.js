@@ -11,7 +11,7 @@ const regexForUrl = require('../utils/constants');
 
 router.get('/users', getUsers);
 
-router.get('users/me', getMyData);
+router.get('/users/me', getMyData);
 
 router.get('/users/:userId', celebrate({
   params: Joi.object().keys({

@@ -14,6 +14,12 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
+module.exports.getMyData = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.status(HTTP_STATUS_OK).send(user))
+    .catch(next);
+};
+
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
@@ -100,10 +106,4 @@ module.exports.login = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
-};
-
-module.exports.getMyData = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => res.status(HTTP_STATUS_OK).send(user))
-    .catch(next);
 };
